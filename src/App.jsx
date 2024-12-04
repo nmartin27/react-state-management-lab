@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import ZombieFighterList from "./components/ZombieFighterList/ZombieFighterList";
 
@@ -13,7 +13,7 @@ const App = () => {
         price: 12,
         strength: 6,
         agility: 4,
-        img: "https://via.placeholder.com/150/92c952",
+        img: "https://upload.wikimedia.org/wikipedia/en/4/40/400px-Survivor.borneo.logo.png?20191101022112",
       },
       {
         name: "Scavenger",
@@ -81,14 +81,76 @@ const App = () => {
     ]
     // console.log('Zombies?', zombieFighters),
   );
-  console.log(zombieFighters);
+  const [totalStrength, setTotalStrength] = useState(0);
+  const [totalAgility, setTotalAgility] = useState(0);
+  // console.log(zombieFighters);
+  const handleAddFighter = (zombieFighter) => {
+    console.log("Attempting to add fighter:", zombieFighter);
+
+    if (money >= zombieFighter.price) {
+      setTeam((prevTeam) => [...prevTeam, zombieFighter]); // Add zombieFighter to the team
+      setMoney((prevMoney) => prevMoney - zombieFighter.price); // Deduct money
+    } else {
+      console.log("Not enough money"); // Log if insufficient money
+    }
+  };
+
+  const updateStrength = () => {
+    const total = team.reduce((sum, member) => sum + member.strength, 0)
+      setTotalStrength(total)
+  }
+
+  useEffect(() => {
+    updateStrength()
+  }, [team])
+
+  const uodateAgility = () => {
+    const total = team.reduce((sum, member) => sum + member.agility, 0)
+      setTotalAgility(total)
+  }
+
+  useEffect(() => {
+    uodateAgility()
+  }, [team])
 
   return (
-    <div>
-      <ul>{zombieFighters.map((zombieFighter) => (
-        <ZombieFighterList key={zombieFighter.name}{...zombieFighter}/>
-      ))}</ul>
-    </div>
+    <>
+      <div>Money: ${money}</div>
+      <div>Total Strength: {totalStrength}</div>
+      <div>Total Agility: {totalAgility}</div>
+
+      <div>
+        <h2>Your Team:</h2>
+        <ul>
+          {team.map((member, index) => (
+            <li key={index}>
+              <img
+                src={member.img}
+                alt={member.name}
+                style={{ width: "150px", height: "150px" }}
+              />
+              <p>{member.name}</p>
+              <p>Price: {member.price}</p>
+              <p>Strength: {member.strength}</p>
+              <p>Agility: {member.agility}</p>
+              <button onClick={() => handleRemoveFighter()}>Remove Fighter</button>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h2>Pick some team members!</h2>
+        <ul>
+          {zombieFighters.map((zombieFighter) => (
+            <ZombieFighterList
+              key={zombieFighter.name}
+              {...zombieFighter}
+              onAdd={handleAddFighter}
+            />
+          ))}
+        </ul>
+      </div>
+    </>
   );
 };
 
